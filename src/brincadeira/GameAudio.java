@@ -113,10 +113,7 @@ public class GameAudio {
 
     private boolean carregarEfeitoJava(String nome, String caminho) {
         try {
-            File arquivo = new File(caminho);
-            if (!arquivo.exists()) { System.out.println("[Audio] Arquivo não encontrado: " + caminho); return false; }
-
-            AudioInputStream stream = AudioSystem.getAudioInputStream(arquivo);
+            AudioInputStream stream = abrirAudioStream(caminho);
             AudioFormat fmt = stream.getFormat();
             if (fmt.getEncoding() != AudioFormat.Encoding.PCM_SIGNED || fmt.getSampleSizeInBits() != 16) {
                 AudioInputStream convertido = AudioSystem.getAudioInputStream(formatoPadrao(fmt), stream);
@@ -146,13 +143,18 @@ public class GameAudio {
 
     // ── Implementação PowerShell (fallback WSL2) ──────────────────────────────
 
+    private AudioInputStream abrirAudioStream(String caminho) throws Exception {
+        InputStream is = GameAudio.class.getResourceAsStream("/" + caminho);
+        if (is != null) return AudioSystem.getAudioInputStream(new BufferedInputStream(is));
+        File arquivo = new File(caminho).getAbsoluteFile();
+        if (!arquivo.exists()) throw new FileNotFoundException("Arquivo não encontrado: " + caminho);
+        return AudioSystem.getAudioInputStream(arquivo);
+    }
+
     private boolean carregarEfeitoPowerShell(String nome, String caminho) {
         try {
-            File arquivo = new File(caminho).getAbsoluteFile();
-            if (!arquivo.exists()) { System.out.println("[Audio] Arquivo não encontrado: " + caminho); return false; }
-
             // Converte 24-bit → PCM 16-bit (SoundPlayer exige PCM padrão)
-            AudioInputStream stream = AudioSystem.getAudioInputStream(arquivo);
+            AudioInputStream stream = abrirAudioStream(caminho);
             AudioFormat fmt = stream.getFormat();
             AudioFormat alvo = formatoPadrao(fmt);
             AudioInputStream convertido = AudioSystem.getAudioInputStream(alvo, stream);

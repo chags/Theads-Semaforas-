@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -58,10 +59,17 @@ public class GamePanel extends JPanel {
         }).start();
     }
 
+    /** Carrega imagem pelo classpath (JAR) ou pelo sistema de arquivos (desenvolvimento). */
+    private BufferedImage carregarImagem(String nome) throws Exception {
+        InputStream is = getClass().getResourceAsStream("/" + nome);
+        if (is != null) return ImageIO.read(is);
+        return ImageIO.read(new File(nome));
+    }
+
     /** Carrega e divide o sprite sheet de aguardar bola em 3 frames (cortes em col 487 e 1039). */
     private void carregarSpriteAguardandoBola() {
         try {
-            BufferedImage sheet = ImageIO.read(new File("aguardando_bola.png"));
+            BufferedImage sheet = carregarImagem("aguardando_bola.png");
             int h = sheet.getHeight();
             int[] cortes = {0, 487, 1039, sheet.getWidth()};
             spriteAguardandoBola = new BufferedImage[3];
@@ -77,7 +85,7 @@ public class GamePanel extends JPanel {
     /** Carrega e divide o sprite sheet de descanso em 2 frames. */
     private void carregarSpriteDescansando() {
         try {
-            BufferedImage sheet = ImageIO.read(new File("decansando.png"));
+            BufferedImage sheet = carregarImagem("decansando.png");
             int fw = sheet.getWidth() / 2;
             int fh = sheet.getHeight();
             spriteDescansando = new BufferedImage[2];
@@ -93,13 +101,13 @@ public class GamePanel extends JPanel {
     /** Carrega e divide o sprite sheet em 3 frames. */
     private void carregarSprite() {
         try {
-            BufferedImage sheet = ImageIO.read(new File("menino_sprite.png"));
+            BufferedImage sheet = carregarImagem("menino_sprite.png");
             int fw = sheet.getWidth() / 3;
             int fh = sheet.getHeight();
             spriteFrames = new BufferedImage[3];
             for (int i = 0; i < 3; i++) {
                 int x = i * fw;
-                int w = (i == 2) ? sheet.getWidth() - x : fw; // último frame pega o restante
+                int w = (i == 2) ? sheet.getWidth() - x : fw;
                 spriteFrames[i] = sheet.getSubimage(x, 0, w, fh);
             }
             System.out.println("[Sprite] Carregado: " + fw + "x" + fh + " por frame");
