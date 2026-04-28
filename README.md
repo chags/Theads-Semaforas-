@@ -12,6 +12,8 @@
 
 Simulação do problema clássico de sincronização entre threads usando semáforos em Java.
 
+Este trabalho implementa um cenário onde **N crianças** compartilham um **cesto de bolas com capacidade limitada K**, utilizando semáforos para coordenar o acesso concorrente sem deadlocks nem condições de corrida. Cada criança é representada por uma thread independente que alterna entre brincar, devolver a bola, descansar e pegar uma nova bola — demonstrando na prática os conceitos de exclusão mútua, sincronização e comunicação entre processos estudados na disciplina de Sistemas Operacionais. A aplicação conta com interface gráfica animada em Java Swing, onde cada estado da criança é exibido por um sprite animado distinto e acompanhado de efeito sonoro.
+
 ## Descrição do Problema
 
 N crianças compartilham um cesto com capacidade para K bolas.
