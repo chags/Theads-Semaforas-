@@ -1,5 +1,15 @@
 # Brincadeira de Crianças — Semáforos
 
+**Instituto Federal de Educação, Ciência e Tecnologia do Ceará — IFCE**
+
+| | |
+|---|---|
+| **Disciplina** | Sistemas Operacionais |
+| **Professor** | Parente |
+| **Aluno** | Francisco Cristiano Chagas |
+
+---
+
 Simulação do problema clássico de sincronização entre threads usando semáforos em Java.
 
 ## Descrição do Problema
