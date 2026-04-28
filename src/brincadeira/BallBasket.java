@@ -3,8 +3,7 @@ package brincadeira;
 import javax.sound.sampled.*;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * Cesto de bolas com capacidade limitada K.
@@ -37,52 +36,31 @@ public class BallBasket {
 
     public BallBasket(int capacity) {
         this.capacity   = capacity;
-        this.emptySlots = new Semaphore(capacity); // cesto começa vazio → K espaços livres
-        this.balls      = new Semaphore(0);        // nenhuma bola no início
-        
-        // Carrega som usando caminho absoluto
-        String caminho = System.getProperty("user.dir") + "/basketball.wav";
-        carregarSom(caminho);
+        this.emptySlots = new Semaphore(capacity);
+        this.balls      = new Semaphore(0);
+        carregarSom();
     }
 
-    /** Carrega o efeito sonoro do arquivo. */
-    private void carregarSom(String caminho) {
-        System.out.println("[Audio] ====== Iniciando carregamento ======");
+    /** Carrega o efeito sonoro pelo classpath (JAR) ou pelo sistema de arquivos. */
+    private void carregarSom() {
         try {
-            File arquivo = new File(caminho);
-            System.out.println("[Audio] Caminho: " + arquivo.getAbsolutePath());
-            System.out.println("[Audio] Existe: " + arquivo.exists());
-            
-            if (!arquivo.exists()) {
-                System.out.println("[Audio] Arquivo não encontrado: " + caminho);
-                return;
-            }
-            
-            AudioInputStream ais = AudioSystem.getAudioInputStream(arquivo);
-            AudioFormat baseFormat = ais.getFormat();
-            System.out.println("[Audio] Formato base: " + baseFormat);
-            
-            // Usar formato PCM padrão mantendo endianness original
-            AudioFormat decodedFormat = new AudioFormat(
+            InputStream is = BallBasket.class.getResourceAsStream("/basketball.wav");
+            if (is == null) is = new FileInputStream(new File("basketball.wav"));
+
+            AudioInputStream ais = AudioSystem.getAudioInputStream(new BufferedInputStream(is));
+            AudioFormat base = ais.getFormat();
+            AudioFormat alvo = new AudioFormat(
                 AudioFormat.Encoding.PCM_SIGNED,
-                baseFormat.getSampleRate(),
-                16,
-                baseFormat.getChannels(),
-                baseFormat.getChannels() * 2,
-                baseFormat.getSampleRate(),
-                baseFormat.isBigEndian());
-            
-            System.out.println("[Audio] Formato destino: " + decodedFormat);
-            
-            // Converter para formato suportado
-            AudioInputStream convertedStream = AudioSystem.getAudioInputStream(decodedFormat, ais);
-            
+                base.getSampleRate(), 16,
+                base.getChannels(), base.getChannels() * 2,
+                base.getSampleRate(), false);
+
+            AudioInputStream convertido = AudioSystem.getAudioInputStream(alvo, ais);
             somTroca = AudioSystem.getClip();
-            somTroca.open(convertedStream);
-            System.out.println("[Audio] Som carregado com sucesso!");
+            somTroca.open(convertido);
+            System.out.println("[Audio] Som do cesto carregado.");
         } catch (Exception e) {
-            System.out.println("[Audio] ERRO: " + e.getMessage());
-            e.printStackTrace();
+            System.out.println("[Audio] Som do cesto indisponível: " + e.getMessage());
         }
     }
 
